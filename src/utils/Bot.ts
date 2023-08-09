@@ -26,7 +26,20 @@ class ChatBot {
     }
 
     failedConection() {
-        var message = "Ops, estou sem conexão no momento 😔 \n Tente novamente mais tarde."
+        var message = "Ops, estou sem conexão no momento 😔 \n tente novamente mais tarde."
+        const newMessage = {
+            _id: toString(uuid.v4()),
+            from: 1,
+            to: 2,
+            path: "",
+            message: message,
+            created_at: this.getDate(),
+        }
+        return newMessage
+    }
+
+    withoutKey() {
+        var message = " 🔑*Você ainda não cadastrou uma chave*🔑, \n cadastre uma e tente novamente."
         const newMessage = {
             _id: toString(uuid.v4()),
             from: 1,

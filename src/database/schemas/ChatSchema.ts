@@ -12,6 +12,17 @@ export const MessageSchema  = {
     primaryKey: "_id",
 }
 
+export const UserSchema  = {
+    name: "User",
+    properties: {
+        _id: "string",
+        key: "string",
+        created_at: "string"
+    },
+    
+    primaryKey: "_id",
+}
+
 export const ChatSchema = {
     name: "Chat",
     properties: {

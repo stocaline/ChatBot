@@ -156,7 +156,7 @@ export const styles = StyleSheet.create({
     container: {
         height: 70,
         width: '100%',
-        backgroundColor: '#1B1B2A',
+        backgroundColor: '#1d1d2e',
         flexDirection: 'row',
         justifyContent: "space-between",
         alignItems: 'center',

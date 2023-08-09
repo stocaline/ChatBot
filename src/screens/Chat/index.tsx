@@ -14,6 +14,16 @@ import MarkdownRenderer from '../../components/Markdown';
 
 const { width } = Dimensions.get("window")
 
+type message = {
+    _id:  string,
+    from: number,
+    to: number,
+    path: string,
+    message: string,
+    created_at: string
+}
+
+//@ts-ignore
 export default function Chat({ route }) {
 
     let animation = createRef()
@@ -23,11 +33,30 @@ export default function Chat({ route }) {
     const [listMsg, setListMsg] = useState(chat.messages);
     const [inputText, setInputText] = useState('');
     const [loading, setLoading] = useState(false);
+    const [key, setKey] = useState("")
+
+    async function verifyKey() {
+        const realm = await getRealm()
+
+        try {
+            const response = realm.objectForPrimaryKey("User", "User01")
+            if(response !== null){
+                //@ts-ignore
+                setKey(response.key)
+            }
+
+        } catch (e) {
+            console.log(e)
+        } finally {
+            realm.close
+        }
+    }
 
 
-    function loadingContent(bolean) {
+    function loadingContent(bolean: boolean) {
         setLoading(bolean)
         if (bolean) {
+            //@ts-ignore
             animation.current.play()
         }
     }
@@ -39,7 +68,7 @@ export default function Chat({ route }) {
         return formattedDate
     }
 
-    async function saveMsg(newMessage) {
+    async function saveMsg(newMessage: message) {
         const realm = await getRealm();
 
         try {
@@ -58,7 +87,7 @@ export default function Chat({ route }) {
         }
         setInputText("")
 
-        const newMessage = {
+        const newMessage: message = {
             _id: toString(uuid.v4()),
             from: 2,
             to: 1,
@@ -77,7 +106,7 @@ export default function Chat({ route }) {
         }
     }
 
-    async function getResponseFromBot(messagebot) {
+    async function getResponseFromBot(messagebot:string) {
         loadingContent(true)
 
         //const messageBot = new ChatBot().verify(message)
@@ -87,7 +116,7 @@ export default function Chat({ route }) {
                 "nomeContato": "Ibsem",
                 "mensagem": `${messagebot}`
             }
-            const response = await api.post('/processaPedido/', obj, { headers: { "Authorization": "1096385449351712768-3165192b8c53c612be0bdae62ecbf9d0f968c502b9a03f67c87a62d72214be4c" } })
+            const response = await api.post('/processaPedido/', obj, { headers: { "Authorization": key } })
             const message = JSON.parse(response.data).respostaBOT
             const newMessage = {
                 _id: toString(uuid.v4()),
@@ -100,18 +129,22 @@ export default function Chat({ route }) {
             saveMsg(newMessage)
 
         } catch (err) {
-            saveMsg(new ChatBot().unknownMessage())
+            if (key == "") {
+                saveMsg(new ChatBot().withoutKey())
+            } else {
+                saveMsg(new ChatBot().failedConection())
+            }
         } finally {
             loadingContent(false)
         }
     }
 
     useEffect(() => {
+        verifyKey()
         startChatBotMsg()
-
     }, [listMsg]);
 
-    function renderMsg(item) {
+    function renderMsg(item:message) {
 
         if (item.from == 1) {
             return (
@@ -139,6 +172,7 @@ export default function Chat({ route }) {
                     keyExtractor={item => item._id}
                     renderItem={({ item }) => renderMsg(item)}
                     ref={flatListRef}
+                    //@ts-ignore
                     onContentSizeChange={() => flatListRef.current.scrollToEnd({ animated: true, duration: 500 })}
                 />
             </View>
@@ -156,6 +190,7 @@ export default function Chat({ route }) {
                             height: 50,
                         }}
                         loop={true}
+                        //@ts-ignore
                         ref={animation}
                     />
                 </View>
